@@ -2,6 +2,11 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.FileDialog;
 import java.awt.HeadlessException;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -58,7 +63,13 @@ public class MainFrame extends JFrame {
         panel.setBounds(0, 0, this.getWidth()-10, this.getHeight()-20);
         panel.setLayout(new BorderLayout(10,5)); //默认为0，0；水平间距10，垂直间距5
         JButton browseButton = new JButton("浏览");
-        panel.add(browseButton, BorderLayout.NORTH);
+        //panel.add(browseButton, BorderLayout.NORTH);
+        JButton clipboardButton = new JButton("来自剪切板");
+        //panel.add(clipboardButton, BorderLayout.NORTH); 
+        JPanel panelButs = new JPanel();
+        panelButs.add(browseButton);
+        panelButs.add(clipboardButton);
+        panel.add(panelButs, BorderLayout.NORTH);
         zPanel = new ZPanel(); 
         panel.add(zPanel,BorderLayout.CENTER);
         
@@ -67,6 +78,17 @@ public class MainFrame extends JFrame {
                 do_browseButton_actionPerformed(arg0);
             }
         });
+        clipboardButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+            	try {
+					zPanel.setImagePath(getImageFromClipboard());
+					zPanel.repaint();
+				} catch (Exception e) {
+					System.out.println("加载剪切板图像出错：");
+					e.printStackTrace();
+				}
+            }
+        });        
         return panel;
 	}
     // 浏览按钮的单击处理事件
@@ -83,4 +105,13 @@ public class MainFrame extends JFrame {
 //        imgSp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         zPanel.repaint();
     } 
+    public static Image getImageFromClipboard() throws Exception { 
+        Clipboard sysc = Toolkit.getDefaultToolkit().getSystemClipboard(); 
+        Transferable cc = sysc.getContents(null); 
+        if (cc == null) 
+            return null; 
+        else if (cc.isDataFlavorSupported(DataFlavor.imageFlavor)) 
+            return (Image) cc.getTransferData(DataFlavor.imageFlavor); 
+        return null; 
+    }
 }

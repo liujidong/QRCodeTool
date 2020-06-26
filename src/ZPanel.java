@@ -46,7 +46,11 @@ public class ZPanel extends javax.swing.JPanel {
         setImgWidth(image.getWidth(this));  
         setImgHeight(image.getHeight(this));  
     }  
-  
+    public void setImagePath(Image imageNew) {  
+        this.image = imageNew;   
+        setImgWidth(image.getWidth(this));  
+        setImgHeight(image.getHeight(this));  
+    }  
     @Override  
     public void paintComponent(Graphics g1) {  
         int x = 0;  
