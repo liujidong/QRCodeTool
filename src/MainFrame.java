@@ -9,17 +9,31 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
+import com.google.zxing.BinaryBitmap;
+import com.google.zxing.DecodeHintType;
+import com.google.zxing.LuminanceSource;
+import com.google.zxing.MultiFormatReader;
+import com.google.zxing.NotFoundException;
+import com.google.zxing.Result;
+import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
+import com.google.zxing.common.HybridBinarizer;
+
 public class MainFrame extends JFrame {
 	private JTextArea text;
 	private ZPanel zPanel; 
+	private JTabbedPane tabs;
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			
@@ -41,7 +55,7 @@ public class MainFrame extends JFrame {
         setTitle("二维码工具");
         
         //-------------tab页------------------
-        JTabbedPane tabs = new JTabbedPane();
+        tabs = new JTabbedPane();
         tabs.addTab("文本", initPane1());
         tabs.addTab("二维码", initPane2());
         setContentPane(tabs);
@@ -55,6 +69,7 @@ public class MainFrame extends JFrame {
         //panel.add(new JScrollPane(text));
         text.setBounds(0, 0, this.getWidth(), this.getHeight()-30);
         panel.add(text);
+        //text.addTextListener
         return panel;
 	}
 	protected JPanel initPane2() {
@@ -81,8 +96,9 @@ public class MainFrame extends JFrame {
         clipboardButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
             	try {
-					zPanel.setImagePath(getImageFromClipboard());
-					zPanel.repaint();
+					zPanel.setImage(getImageFromClipboard());
+					//zPanel.repaint();
+					decodeShow(zPanel.getImage());
 				} catch (Exception e) {
 					System.out.println("加载剪切板图像出错：");
 					e.printStackTrace();
@@ -103,7 +119,8 @@ public class MainFrame extends JFrame {
 //        imgSp.setViewportView(zPanel);  
 //        imgSp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);  
 //        imgSp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        zPanel.repaint();
+        //zPanel.repaint();
+        decodeShow(zPanel.getImage());
     } 
     public static Image getImageFromClipboard() throws Exception { 
         Clipboard sysc = Toolkit.getDefaultToolkit().getSystemClipboard(); 
@@ -113,5 +130,26 @@ public class MainFrame extends JFrame {
         else if (cc.isDataFlavorSupported(DataFlavor.imageFlavor)) 
             return (Image) cc.getTransferData(DataFlavor.imageFlavor); 
         return null; 
+    }
+    public void decodeShow(Image image){
+    	String resultTxt = "";
+		try {
+			LuminanceSource source = new BufferedImageLuminanceSource((BufferedImage)image);  
+			BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));  
+
+			Map<DecodeHintType, Object> hints = new HashMap<DecodeHintType, Object>();  
+			hints.put(DecodeHintType.CHARACTER_SET, "utf-8");  
+
+	    	Result result = new MultiFormatReader().decode(bitmap, hints);
+			resultTxt = result.getText();
+			//JOptionPane.showMessageDialog(this, "二维码解析成功", "标题",JOptionPane.OK_OPTION);  
+		} catch (NotFoundException e) {
+			resultTxt = "解析二维码图片出错！";
+			e.printStackTrace();
+		}  
+        //return result.getText();  
+        text.setText(resultTxt);
+        //text.getParent().getParent().setsel
+        tabs.setSelectedIndex(0);
     }
 }
