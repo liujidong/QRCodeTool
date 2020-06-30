@@ -64,12 +64,30 @@ public class MainFrame extends JFrame {
 		JPanel panel = new JPanel();
 		panel.setBorder(new EmptyBorder(5, 5, 5, 5));
         panel.setBounds(0, 0, this.getWidth()-10, this.getHeight()-20);
-        panel.setLayout(null);
+        panel.setLayout(new BorderLayout(10,5));
+        JButton genBtn = new JButton("生成二维码");
+        panel.add(genBtn,BorderLayout.NORTH);
         text = new JTextArea(10,50);
         //panel.add(new JScrollPane(text));
         text.setBounds(0, 0, this.getWidth(), this.getHeight()-30);
-        panel.add(text);
+        panel.add(text,BorderLayout.CENTER);
         //text.addTextListener
+        genBtn.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(text.getText().length()>0) {
+					try {
+						String imgPath = CreateQRCode.toQRCode(text.getText(), null);
+						zPanel.setImagePath(imgPath); 
+						tabs.setSelectedIndex(1);
+					} catch (Exception e1) {
+						JOptionPane.showMessageDialog(MainFrame.this, "二维码生成失败！", "标题",JOptionPane.ERROR_MESSAGE);  
+						e1.printStackTrace();
+					}
+				}
+			}
+		});
         return panel;
 	}
 	protected JPanel initPane2() {
@@ -78,12 +96,12 @@ public class MainFrame extends JFrame {
         panel.setBounds(0, 0, this.getWidth()-10, this.getHeight()-20);
         panel.setLayout(new BorderLayout(10,5)); //默认为0，0；水平间距10，垂直间距5
         JButton browseButton = new JButton("浏览");
-        //panel.add(browseButton, BorderLayout.NORTH);
         JButton clipboardButton = new JButton("来自剪切板");
-        //panel.add(clipboardButton, BorderLayout.NORTH); 
+        JButton saveBtn = new JButton("保存二维码");
         JPanel panelButs = new JPanel();
         panelButs.add(browseButton);
         panelButs.add(clipboardButton);
+        panelButs.add(saveBtn);
         panel.add(panelButs, BorderLayout.NORTH);
         zPanel = new ZPanel(); 
         panel.add(zPanel,BorderLayout.CENTER);
@@ -104,7 +122,8 @@ public class MainFrame extends JFrame {
 					e.printStackTrace();
 				}
             }
-        });        
+        });  
+        saveBtn.addActionListener(e -> zPanel.saveToFile());
         return panel;
 	}
     // 浏览按钮的单击处理事件
@@ -138,11 +157,12 @@ public class MainFrame extends JFrame {
 			BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));  
 
 			Map<DecodeHintType, Object> hints = new HashMap<DecodeHintType, Object>();  
-			hints.put(DecodeHintType.CHARACTER_SET, "utf-8");  
+			hints.put(DecodeHintType.CHARACTER_SET, "utf-8"); 
+			hints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
+			hints.put(DecodeHintType.PURE_BARCODE, Boolean.TRUE);
 
 	    	Result result = new MultiFormatReader().decode(bitmap, hints);
 			resultTxt = result.getText();
-			//JOptionPane.showMessageDialog(this, "二维码解析成功", "标题",JOptionPane.OK_OPTION);  
 		} catch (NotFoundException e) {
 			resultTxt = "解析二维码图片出错！";
 			e.printStackTrace();
@@ -152,4 +172,5 @@ public class MainFrame extends JFrame {
         //text.getParent().getParent().setsel
         tabs.setSelectedIndex(0);
     }
+    
 }

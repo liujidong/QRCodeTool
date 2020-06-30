@@ -1,10 +1,15 @@
-import java.awt.Graphics;  
-import java.awt.Image;  
+import java.awt.Graphics;
+import java.awt.HeadlessException;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.FileInputStream;  
 import java.io.FileNotFoundException;  
 import java.io.IOException;  
   
-import javax.imageio.ImageIO;  
+import javax.imageio.ImageIO;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;  
   
 public class ZPanel extends javax.swing.JPanel {  
   
@@ -68,5 +73,32 @@ public class ZPanel extends javax.swing.JPanel {
 	public Image getImage() {
 		return image;
 	}  
-    
+    protected void saveToFile() {
+        try {
+			JFileChooser fileChooser = new JFileChooser();
+			FileNameExtensionFilter filter = new FileNameExtensionFilter("png");
+			// 设置文件类型
+			fileChooser.setFileFilter(filter);
+			fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);//设置保存路径
+			int retval = fileChooser.showSaveDialog(this);
+			if (retval == JFileChooser.APPROVE_OPTION) {
+				System.out.println("你打开的文件夹是: " + fileChooser.getSelectedFile().getPath());
+			  File file = fileChooser.getSelectedFile();
+			  if (file == null) {
+			    return;
+			  }
+			  if (!file.getName().toLowerCase().endsWith(".png")) {
+			    file = new File(file.getParentFile(), file.getName() + ".png");
+			  }
+			  System.out.println(file.getAbsolutePath());
+			  ImageIO.write((BufferedImage)image,"png",file);
+			}
+		} catch (HeadlessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+      }    
 } 
