@@ -14,12 +14,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.DecodeHintType;
@@ -65,12 +69,19 @@ public class MainFrame extends JFrame {
 		panel.setBorder(new EmptyBorder(5, 5, 5, 5));
         panel.setBounds(0, 0, this.getWidth()-10, this.getHeight()-20);
         panel.setLayout(new BorderLayout(10,5));
+        JCheckBox isTrim = new JCheckBox("是否去掉空白");
         JButton genBtn = new JButton("生成二维码");
-        panel.add(genBtn,BorderLayout.NORTH);
-        text = new JTextArea(10,50);
+        JPanel panelButs = new JPanel();
+        panelButs.add(isTrim);panelButs.add(genBtn);
+        panel.add(panelButs,BorderLayout.NORTH);
+        text = new JTextArea();
         //panel.add(new JScrollPane(text));
         text.setBounds(0, 0, this.getWidth(), this.getHeight()-30);
-        panel.add(text,BorderLayout.CENTER);
+        //text.setLineWrap(false);
+        JScrollPane scrollText = new JScrollPane(text); 
+        scrollText.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED); 
+        scrollText.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);         
+        panel.add(scrollText,BorderLayout.CENTER);
         //text.addTextListener
         genBtn.addActionListener(new ActionListener() {
 			
@@ -88,7 +99,27 @@ public class MainFrame extends JFrame {
 				}
 			}
 		});
+        isTrim.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				 JCheckBox checkBox = (JCheckBox) e.getSource();
+				 if(checkBox.isSelected()) {
+					 text.setText(trimByLine(text.getText())); 
+				 }
+			}
+		});
         return panel;
+	}
+	private String trimByLine(String value) {
+		if(value != null && value.length()>0) {
+			String[] lines = value.split("\n");
+			for (int i = 0; i < lines.length; i++) {
+				lines[i]=lines[i].trim();
+			}
+			return String.join("\n", lines);
+		}
+		return "";
 	}
 	protected JPanel initPane2() {
         JPanel panel = new JPanel();
