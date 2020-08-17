@@ -9,9 +9,6 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -25,16 +22,11 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import com.google.zxing.BinaryBitmap;
-import com.google.zxing.DecodeHintType;
-import com.google.zxing.LuminanceSource;
-import com.google.zxing.MultiFormatReader;
-import com.google.zxing.NotFoundException;
-import com.google.zxing.Result;
-import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
-import com.google.zxing.common.HybridBinarizer;
-
 public class MainFrame extends JFrame {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JTextArea text;
 	private ZPanel zPanel; 
 	private JTabbedPane tabs;
@@ -182,22 +174,7 @@ public class MainFrame extends JFrame {
         return null; 
     }
     public void decodeShow(Image image){
-    	String resultTxt = "";
-		try {
-			LuminanceSource source = new BufferedImageLuminanceSource((BufferedImage)image);  
-			BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));  
-
-			Map<DecodeHintType, Object> hints = new HashMap<DecodeHintType, Object>();  
-			hints.put(DecodeHintType.CHARACTER_SET, "utf-8"); 
-			hints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
-			hints.put(DecodeHintType.PURE_BARCODE, Boolean.TRUE);
-
-	    	Result result = new MultiFormatReader().decode(bitmap, hints);
-			resultTxt = result.getText();
-		} catch (NotFoundException e) {
-			resultTxt = "解析二维码图片出错！";
-			e.printStackTrace();
-		}  
+    	String resultTxt = ReadQRCode.decodeQR(image); 
         //return result.getText();  
         text.setText(resultTxt);
         //text.getParent().getParent().setsel
