@@ -22,6 +22,9 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import utils.zxing.CreateQRCode;
+import utils.zxing.ReadQRCode;
+
 public class MainFrame extends JFrame {
 	/**
 	 * 
