@@ -14,7 +14,21 @@ public class CreateQRCode {
 
 	public static void main(String[] args) throws Exception{
 		String qrData = "www.baidu.com";
-		
+		byte[] d =qrData.getBytes("gb2312");
+		String fileName = "baidu2_QRCode.png";
+		toQRCode(d, fileName);
+
+	}
+	public static String toQRCode(byte[] bytes,String fileName) throws Exception{
+		if(bytes==null) {return null;}
+		if(fileName == null || fileName.length()==0) {
+			fileName = "tmp";
+		}			
+		String format = "png";
+		String filePath = fileName;
+		if(!fileName.endsWith(format)) {
+			filePath += "." + format;
+		}
 		Qrcode x = new Qrcode();
 		x.setQrcodeErrorCorrect('M');//纠错等级
 		x.setQrcodeEncodeMode('B');//N 数字   A a-z  B代表其他内容
@@ -38,9 +52,9 @@ public class CreateQRCode {
 		gs.setColor(Color.BLACK);
 		gs.clearRect(0, 0, width, height);
 		int pixff = 2;//偏移量
-		byte[] d =qrData.getBytes("gb2312");
-		if (d.length>0 && d.length <120){
-		    boolean[][] s = x.calQrcode(d);
+
+		if (bytes.length>0 && bytes.length <120){
+		    boolean[][] s = x.calQrcode(bytes);
 		    for (int i=0;i<s.length;i++){
 				for (int j=0;j<s.length;j++){
 				    if (s[j][i]) {
@@ -52,10 +66,10 @@ public class CreateQRCode {
 		gs.dispose();
 		bufferedImage.flush();
 		try {
-			ImageIO.write(bufferedImage, "png", new File("D:/baidu2_QRCode.png"));
+			ImageIO.write(bufferedImage, format, new File(filePath));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return filePath;
 	}
-
 }
