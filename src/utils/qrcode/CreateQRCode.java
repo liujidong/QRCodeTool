@@ -10,13 +10,16 @@ import javax.imageio.ImageIO;
 
 import com.swetake.util.Qrcode;
 
+import utils.FileUtils;
+
 public class CreateQRCode {
 
 	public static void main(String[] args) throws Exception{
 		String qrData = "www.baidu.com";
-		byte[] d =qrData.getBytes("gb2312");
-		String fileName = "baidu2_QRCode.png";
-		toQRCode(d, fileName);
+		byte[] bytes =qrData.getBytes("gb2312");
+		//byte[] bytes = FileUtils.toByteArray("D:\\code-java\\QRCodeTool\\src\\utils\\utils.zip");
+		String fileName = "D:\\code-java\\QRCodeTool\\src\\utils\\utils.png";
+		toQRCode(bytes, fileName);
 
 	}
 	public static String toQRCode(byte[] bytes,String fileName) throws Exception{
@@ -36,7 +39,7 @@ public class CreateQRCode {
 		* 版本   1-40
 		* 从21x21（版本1），到177x177（版本40），每一版本符号比前一版本每边增加4个模块。
 		* */
-		int version = 7;
+		int version = 40;
 		x.setQrcodeVersion(version);
 		//画的长度根据版本的不同，大小不同， 下面的长度计算公式固定
 		int width = 67+12*(version-1);
