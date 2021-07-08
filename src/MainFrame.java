@@ -38,6 +38,7 @@ public class MainFrame extends JFrame {
 	private JTextArea text;
 	private ZPanel zPanel; 
 	private JTabbedPane tabs;
+	private JCheckBox isLogo;
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			
@@ -126,10 +127,12 @@ public class MainFrame extends JFrame {
         panel.setBorder(new EmptyBorder(5, 5, 5, 5));
         panel.setBounds(0, 0, this.getWidth()-10, this.getHeight()-20);
         panel.setLayout(new BorderLayout(10,5)); //默认为0，0；水平间距10，垂直间距5
+        isLogo = new JCheckBox("中间是否有LOGO");
         JButton browseButton = new JButton("浏览");
         JButton clipboardButton = new JButton("来自剪切板");
         JButton saveBtn = new JButton("保存二维码");
         JPanel panelButs = new JPanel();
+        panelButs.add(isLogo);
         panelButs.add(browseButton);
         panelButs.add(clipboardButton);
         panelButs.add(saveBtn);
@@ -188,9 +191,13 @@ public class MainFrame extends JFrame {
 			BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));  
 
 			Map<DecodeHintType, Object> hints = new HashMap<DecodeHintType, Object>();  
-			hints.put(DecodeHintType.CHARACTER_SET, "utf-8"); 
+			hints.put(DecodeHintType.CHARACTER_SET, "utf-8");
+			//优化扫描精度 （增加解析成功率）
 			hints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
+			if(isLogo.isSelected()){
+			//复杂模式，开启PURE_BARCODE模式,带图片LOGO的解码方案,否则会出现NotFoundException
 			hints.put(DecodeHintType.PURE_BARCODE, Boolean.TRUE);
+			}
 
 	    	Result result = new MultiFormatReader().decode(bitmap, hints);
 			resultTxt = result.getText();
