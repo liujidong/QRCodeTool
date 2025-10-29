@@ -34,6 +34,7 @@ public class MainFrame extends JFrame {
 	private ZPanel zPanel; 
 	private JTabbedPane tabs;
 	private JCheckBox isLogo;
+    private JButton saveBtn;
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			
@@ -52,12 +53,12 @@ public class MainFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(500, 500, 450, 500);
         //setLocationRelativeTo(null);  
-        setTitle("二维码工具");
+        setTitle("二维码工具2.0");
         
         //-------------tab页------------------
         tabs = new JTabbedPane();
-        tabs.addTab("文本", initPane1());
-        tabs.addTab("二维码", initPane2());
+        tabs.addTab("文本转二维码", initPane1());
+        tabs.addTab("识别二维码", initPane2());
         setContentPane(tabs);
 	}
 	protected JPanel initPane1() {
@@ -69,7 +70,7 @@ public class MainFrame extends JFrame {
         JButton genBtn = new JButton("生成二维码");
         JPanel panelButs = new JPanel();
         panelButs.add(isTrim);panelButs.add(genBtn);
-        panel.add(panelButs,BorderLayout.NORTH);
+        panel.add(panelButs,BorderLayout.SOUTH);
         text = new JTextArea();
         //panel.add(new JScrollPane(text));
         text.setBounds(0, 0, this.getWidth(), this.getHeight()-30);
@@ -88,6 +89,7 @@ public class MainFrame extends JFrame {
 						String imgPath = CreateQRCode.toQRCode(text.getText(), null);
 						zPanel.setImagePath(imgPath); 
 						tabs.setSelectedIndex(1);
+						saveBtn.setEnabled(true);
 					} catch (Exception e1) {
 						JOptionPane.showMessageDialog(MainFrame.this, "二维码生成失败！", "标题",JOptionPane.ERROR_MESSAGE);  
 						e1.printStackTrace();
@@ -123,24 +125,28 @@ public class MainFrame extends JFrame {
         panel.setBounds(0, 0, this.getWidth()-10, this.getHeight()-20);
         panel.setLayout(new BorderLayout(10,5)); //默认为0，0；水平间距10，垂直间距5
         isLogo = new JCheckBox("中间是否有LOGO");
-        JButton browseButton = new JButton("浏览");
+        JButton browseButton = new JButton("浏览二维码图片");
         JButton clipboardButton = new JButton("来自剪切板");
-        JButton saveBtn = new JButton("保存二维码");
+        saveBtn = new JButton("保存二维码");
+        saveBtn.setEnabled(false);
         JPanel panelButs = new JPanel();
         panelButs.add(isLogo);
         panelButs.add(browseButton);
         panelButs.add(clipboardButton);
-        panelButs.add(saveBtn);
         panel.add(panelButs, BorderLayout.NORTH);
         zPanel = new ZPanel(); 
         panel.add(zPanel,BorderLayout.CENTER);
-        
+        JPanel panelButsSouth = new JPanel();
+        panelButsSouth.add(saveBtn);
+        panel.add(panelButsSouth,BorderLayout.SOUTH);
         browseButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent arg0) {
                 do_browseButton_actionPerformed(arg0);
             }
         });
         clipboardButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent arg0) {
             	try {
 					zPanel.setImage(getImageFromClipboard());
@@ -158,6 +164,10 @@ public class MainFrame extends JFrame {
     // 浏览按钮的单击处理事件
     protected void do_browseButton_actionPerformed(ActionEvent arg0) {
         java.awt.FileDialog fd = new FileDialog(this);
+        fd.setFilenameFilter((dir,name)->{
+            String lowerName = name.toLowerCase();
+            return lowerName.endsWith(".png") || lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg");
+        });
         fd.setVisible(true);
         //fileTextField2.setText(fd.getDirectory() + fd.getFile());   
         zPanel.setImagePath(fd.getDirectory() + fd.getFile());  
@@ -168,23 +178,33 @@ public class MainFrame extends JFrame {
 //        imgSp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);  
 //        imgSp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         //zPanel.repaint();
-        decodeShow(zPanel.getImage());
+        if(fd.getFile() != null) {
+            decodeShow(zPanel.getImage());
+        }
     } 
     public static Image getImageFromClipboard() throws Exception { 
         Clipboard sysc = Toolkit.getDefaultToolkit().getSystemClipboard(); 
         Transferable cc = sysc.getContents(null); 
-        if (cc == null) 
-            return null; 
+        if (cc == null) {
+            return null;
+        }
         else if (cc.isDataFlavorSupported(DataFlavor.imageFlavor)) 
-            return (Image) cc.getTransferData(DataFlavor.imageFlavor); 
+        {return (Image) cc.getTransferData(DataFlavor.imageFlavor); }
         return null; 
     }
+
+    /**
+     * 识别二维码图片
+     * @param image 二维码图片
+     */
     public void decodeShow(Image image){
     	String resultTxt = ReadQRCode.decodeQR(image,isLogo.isSelected()); 
         //return result.getText();  
         text.setText(resultTxt);
         //text.getParent().getParent().setsel
         tabs.setSelectedIndex(0);
+        zPanel.setImage(image);
+        saveBtn.setEnabled(true);
     }
     
 }
